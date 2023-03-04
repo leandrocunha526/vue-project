@@ -1,29 +1,43 @@
 import {
-  BeforeInsert,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import * as argon2 from 'argon2';
 import { TaskEntity } from 'src/task/entities/task.entity';
 
 @Entity('user')
 export class UserEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ nullable: false })
-  username: string;
+    @Column({ nullable: false })
+    username: string;
 
-  @Column({ nullable: false })
-  password: string;
+    @Column({ nullable: false })
+    password: string;
 
-  @OneToMany(() => TaskEntity, (task) => task.user)
-  tasks: TaskEntity[];
+    @OneToMany(() => TaskEntity, (task) => task.user)
+    tasks: TaskEntity[];
 
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await argon2.hash(this.password);
-  }
+    @CreateDateColumn({
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
+
+    @UpdateDateColumn({
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
+
+    @BeforeInsert()
+    async hashPassword() {
+        this.password = await argon2.hash(this.password);
+    }
 }
